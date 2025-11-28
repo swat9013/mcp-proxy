@@ -1,0 +1,68 @@
+# MCP Proxy Gateway 設定ファイル
+
+proxy:
+  name: "mcp-proxy-gateway"
+  version: "1.0.0"
+  namespacing:
+    enabled: true
+    separator: "__"
+
+upstreams:
+  serena:
+    type: stdio
+    command: "uvx"
+    args:
+      - "--from"
+      - "git+https://github.com/oraios/serena"
+      - "serena"
+      - "start-mcp-server"
+      - "--context"
+      - "ide-assistant"
+      - "--project"
+      - "${PROJECT_PATH}"
+    allowedTools:
+      - get_symbols_overview
+      - find_symbol
+      - find_referencing_symbols
+      - replace_symbol_body
+      - insert_after_symbol
+      - insert_before_symbol
+      - rename_symbol
+      - search_for_pattern
+      - list_dir
+      - find_file
+    toolDescriptionOverrides:
+      find_symbol: "シンボル検索"
+      replace_symbol_body: "シンボル編集"
+      get_symbols_overview: "ファイルのシンボル一覧"
+
+  deepwiki-http:
+    type: http
+    url: "https://mcp.deepwiki.com/mcp"
+    allowedTools:
+      - read_wiki_structure
+      - read_wiki_contents
+      - ask_question
+    toolDescriptionOverrides:
+      ask_question: "GitHubリポジトリについて質問"
+
+  atlassian:
+    type: stdio
+    command: "npx"
+    args:
+      - "-y"
+      - "mcp-remote"
+      - "https://mcp.atlassian.com/v1/sse"
+    allowedTools:
+      - getJiraIssue
+      - searchJiraIssuesUsingJql
+      - transitionJiraIssue
+      - addCommentToJiraIssue
+      - createJiraIssue
+    toolDescriptionOverrides:
+      getJiraIssue: "Jira課題取得"
+      searchJiraIssuesUsingJql: "JQL検索"
+
+# 環境変数
+env:
+  PROJECT_PATH: "${PWD}"

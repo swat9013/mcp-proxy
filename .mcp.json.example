@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "proxy": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/path/to/mcp-proxy/dist/index.js",
+        "--config",
+        "/path/to/mcp-proxy/mcp-proxy.config.yaml"
+      ]
+    }
+  }
+}
