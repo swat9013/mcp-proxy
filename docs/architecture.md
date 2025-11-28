@@ -116,10 +116,43 @@ JSON-RPC 2.0 over stdio を使用。
 | `tools/list` | ツール一覧取得 |
 | `tools/call` | ツール実行 |
 
-### 未実装（必要に応じて追加）
+### 未実装メソッド
 
-| メソッド | 説明 |
-|---------|------|
-| `resources/list` | リソース一覧取得 |
-| `resources/read` | リソース読み取り |
-| `prompts/list` | プロンプト一覧取得 |
+以下のメソッドは現時点では未実装です。
+
+| メソッド | 説明 | 実装優先度 |
+|---------|------|-----------|
+| `resources/list` | リソース一覧取得 | 低 |
+| `resources/read` | リソース読み取り | 低 |
+| `prompts/list` | プロンプト一覧取得 | 中 |
+| `prompts/get` | プロンプト取得 | 中 |
+
+#### 調査結果（2025年11月）
+
+**Claude Codeの対応状況:**
+- Resources: `@`メンションでMCPサーバーのリソースを参照可能
+- Prompts: `/mcp__servername__promptname`形式でスラッシュコマンドとして利用可能
+- 参考: [Claude Code MCP Documentation](https://docs.anthropic.com/en/docs/claude-code/mcp)
+
+**上流MCPサーバーの対応状況:**
+
+| サーバー | Resources | Prompts | 備考 |
+|---------|-----------|---------|------|
+| Serena | 不明 | サポート | 設定ファイルでprompts定義可能 |
+| DeepWiki | なし | なし | toolsのみ提供 |
+| Atlassian | なし | 計画中 | コミュニティで議論中 |
+
+**実装方針:**
+- 現時点では上流サーバーがこれらの機能を積極的に使っていないため、実装は見送り
+- Serenaのprompts対応が確認できれば `prompts/list` 実装を検討
+- Atlassianがresources/promptsを実装したら対応を検討
+
+**実装する場合の工数見積もり:**
+- `resources/list` + `resources/read`: 2-3日
+- `prompts/list` + `prompts/get`: 1-2日
+
+参考リンク:
+- [MCP Specification - Resources](https://spec.modelcontextprotocol.io/specification/server/resources/)
+- [MCP Specification - Prompts](https://modelcontextprotocol.io/docs/concepts/prompts)
+- [Serena GitHub](https://github.com/oraios/serena)
+- [Atlassian MCP Community Discussion](https://community.atlassian.com/forums/Jira-questions/MCP-Feedback-Resources-Prompts/qaq-p/3083257)
