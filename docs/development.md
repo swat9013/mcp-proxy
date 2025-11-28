@@ -80,7 +80,28 @@ const transport = new SSEClientTransport(new URL("https://example.com/mcp"));
 await client.connect(transport);
 ```
 
-## テスト方法
+## テスト
+
+### 自動テスト（vitest）
+
+```bash
+# テスト実行
+npm test
+
+# 単発実行（ウォッチモードなし）
+npm test -- --run
+```
+
+#### テスト構成
+
+| ファイル | 内容 |
+|---------|------|
+| `src/config/loader.test.ts` | YAML読み込み、環境変数展開、エラー処理 |
+| `src/config/schema.test.ts` | Zodスキーマバリデーション |
+| `src/registry/tool-registry.test.ts` | ツールフィルタリング・圧縮・名前空間 |
+| `src/upstream/manager.test.ts` | クライアント接続・切断・管理 |
+
+テストはハッピーパス中心の最小構成（10テスト）。
 
 ### MCP Inspectorでテスト
 
