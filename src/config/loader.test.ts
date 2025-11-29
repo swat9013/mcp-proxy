@@ -25,7 +25,7 @@ describe("ConfigLoader", () => {
     }
   });
 
-  it("YAML設定ファイルを読み込みデフォルト値を適用する", () => {
+  it("YAML設定ファイルを読み込む", () => {
     const yaml = `
 upstreams:
   server1:
@@ -41,9 +41,6 @@ upstreams:
 
     const config = loadConfig(configPath);
 
-    // デフォルト値
-    expect(config.proxy.name).toBe("mcp-proxy-gateway");
-    expect(config.proxy.namespacing.enabled).toBe(true);
     // stdio upstream
     expect(config.upstreams.server1.type).toBe("stdio");
     if (config.upstreams.server1.type === "stdio") {
@@ -58,8 +55,6 @@ upstreams:
     delete process.env.UNSET_VAR;
 
     const yaml = `
-env:
-  CUSTOM: custom-value
 upstreams:
   test1:
     type: stdio
@@ -67,9 +62,6 @@ upstreams:
   test2:
     type: stdio
     command: \${UNSET_VAR:-fallback}
-  test3:
-    type: stdio
-    command: \${CUSTOM}
 `;
     writeFileSync(configPath, yaml);
 
@@ -80,9 +72,6 @@ upstreams:
     }
     if (config.upstreams.test2.type === "stdio") {
       expect(config.upstreams.test2.command).toBe("fallback");
-    }
-    if (config.upstreams.test3.type === "stdio") {
-      expect(config.upstreams.test3.command).toBe("custom-value");
     }
   });
 

@@ -1,12 +1,5 @@
 # MCP Proxy Gateway 設定ファイル
 
-proxy:
-  name: "mcp-proxy-gateway"
-  version: "1.0.0"
-  namespacing:
-    enabled: true
-    separator: "__"
-
 upstreams:
   serena:
     type: stdio
@@ -19,7 +12,7 @@ upstreams:
       - "--context"
       - "ide-assistant"
       - "--project"
-      - "${PROJECT_PATH}"
+      - "${PROJECT_PATH:-${PWD}}"
     allowedTools:
       - get_symbols_overview
       - find_symbol
@@ -31,20 +24,14 @@ upstreams:
       - search_for_pattern
       - list_dir
       - find_file
-    toolDescriptionOverrides:
-      find_symbol: "シンボル検索"
-      replace_symbol_body: "シンボル編集"
-      get_symbols_overview: "ファイルのシンボル一覧"
 
-  deepwiki-http:
+  deepwiki:
     type: http
     url: "https://mcp.deepwiki.com/mcp"
     allowedTools:
       - read_wiki_structure
       - read_wiki_contents
       - ask_question
-    toolDescriptionOverrides:
-      ask_question: "GitHubリポジトリについて質問"
 
   atlassian:
     type: stdio
@@ -59,10 +46,3 @@ upstreams:
       - transitionJiraIssue
       - addCommentToJiraIssue
       - createJiraIssue
-    toolDescriptionOverrides:
-      getJiraIssue: "Jira課題取得"
-      searchJiraIssuesUsingJql: "JQL検索"
-
-# 環境変数
-env:
-  PROJECT_PATH: "${PWD}"

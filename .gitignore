@@ -10,6 +10,7 @@ dist/
 .vscode/
 .claude/
 .claude
+.serena/
 *.swp
 *.swo
 

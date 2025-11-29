@@ -1,12 +1,5 @@
 # テスト用設定（filesystem MCP サーバーを使用）
 
-proxy:
-  name: "mcp-proxy-gateway"
-  version: "1.0.0"
-  namespacing:
-    enabled: true
-    separator: "__"
-
 upstreams:
   filesystem:
     type: stdio
@@ -19,7 +12,3 @@ upstreams:
       - read_file
       - write_file
       - list_directory
-    toolDescriptionOverrides:
-      read_file: "ファイル読み込み"
-      write_file: "ファイル書き込み"
-      list_directory: "ディレクトリ一覧"

@@ -9,16 +9,16 @@ interface RegisteredTool {
   originalName: string;
 }
 
+const NAMESPACE_SEPARATOR = "__";
+
 export class ToolRegistry {
   private config: Config;
   private upstreamManager: UpstreamManager;
   private tools: Map<string, RegisteredTool> = new Map();
-  private separator: string;
 
   constructor(config: Config, upstreamManager: UpstreamManager) {
     this.config = config;
     this.upstreamManager = upstreamManager;
-    this.separator = config.proxy.namespacing.separator;
   }
 
   async refreshTools(): Promise<void> {
@@ -34,7 +34,7 @@ export class ToolRegistry {
       try {
         const upstreamTools = await client.listTools();
         const filteredTools = this.filterTools(upstreamTools, upstreamConfig);
-        const processedTools = this.processTools(filteredTools, upstreamName, upstreamConfig);
+        const processedTools = this.processTools(filteredTools, upstreamName);
 
         for (const { tool, originalName } of processedTools) {
           this.tools.set(tool.name, { tool, upstreamName, originalName });
@@ -62,21 +62,12 @@ export class ToolRegistry {
 
   private processTools(
     tools: Tool[],
-    upstreamName: string,
-    config: UpstreamConfig
+    upstreamName: string
   ): { tool: Tool; originalName: string }[] {
     return tools.map((tool) => {
       const originalName = tool.name;
-      const namespacedName = this.config.proxy.namespacing.enabled
-        ? `${upstreamName}${this.separator}${tool.name}`
-        : tool.name;
-
-      const description = this.compressDescription(
-        tool.name,
-        tool.description,
-        config.toolDescriptionOverrides
-      );
-
+      const namespacedName = `${upstreamName}${NAMESPACE_SEPARATOR}${tool.name}`;
+      const description = this.compressDescription(tool.description);
       const compressedSchema = this.compressInputSchema(tool.inputSchema);
 
       return {
@@ -90,17 +81,7 @@ export class ToolRegistry {
     });
   }
 
-  private compressDescription(
-    toolName: string,
-    originalDescription: string | undefined,
-    overrides: Record<string, string> | undefined
-  ): string {
-    // カスタムオーバーライドがあればそれを使用
-    if (overrides && overrides[toolName]) {
-      return overrides[toolName];
-    }
-
-    // 元の説明がなければ空文字
+  private compressDescription(originalDescription: string | undefined): string {
     if (!originalDescription) {
       return "";
     }

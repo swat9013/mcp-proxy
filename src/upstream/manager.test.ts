@@ -29,11 +29,12 @@ vi.mock("../utils/logger.js", () => ({
 }));
 
 describe("UpstreamManager", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it("全upstreamに接続しクライアントを管理する", async () => {
     const config: Config = {
-      proxy: { name: "test", version: "1.0.0", namespacing: { enabled: true, separator: "__" } },
       upstreams: {
         server1: { type: "stdio", command: "echo", args: [] },
         server2: { type: "http", url: "http://localhost:3000" },

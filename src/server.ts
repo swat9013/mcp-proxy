@@ -23,8 +23,8 @@ export class ProxyServer {
 
     this.server = new Server(
       {
-        name: config.proxy.name,
-        version: config.proxy.version,
+        name: "mcp-proxy-gateway",
+        version: "1.0.0",
       },
       {
         capabilities: {
