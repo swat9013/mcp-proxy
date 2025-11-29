@@ -94,14 +94,43 @@ npm test -- --run
 
 #### テスト構成
 
-| ファイル | 内容 |
-|---------|------|
-| `src/config/loader.test.ts` | YAML読み込み、環境変数展開、エラー処理 |
-| `src/config/schema.test.ts` | Zodスキーマバリデーション |
-| `src/registry/tool-registry.test.ts` | ツールフィルタリング・圧縮・名前空間 |
-| `src/upstream/manager.test.ts` | クライアント接続・切断・管理 |
+| ファイル | 種別 | 内容 |
+|---------|------|------|
+| `src/config/loader.test.ts` | 単体 | YAML読み込み、環境変数展開、エラー処理 |
+| `src/config/schema.test.ts` | 単体 | Zodスキーマバリデーション |
+| `src/registry/tool-registry.test.ts` | 単体 | ツールフィルタリング・圧縮・名前空間 |
+| `src/upstream/manager.test.ts` | 単体 | クライアント接続・切断・管理 |
+| `src/acceptance.test.ts` | E2E | 目的ベースの受け入れテスト |
 
-テストはハッピーパス中心の最小構成（10テスト）。
+テストはハッピーパス中心の最小構成。
+
+### 受け入れテスト
+
+受け入れテスト（`src/acceptance.test.ts`）は、MCP Proxy Gatewayの**目的**を満たしているかを検証するE2Eテストです。
+
+#### テスト方針
+
+- 実際のMCPサーバー（filesystem MCP）を使用
+- モックは使用しない
+- ツールの目的（価値）の達成を検証
+
+#### テストカテゴリ
+
+| カテゴリ | 検証内容 |
+|---------|----------|
+| **目的1: コンテキスト削減** | 説明圧縮（最初の文のみ・100文字制限）、inputSchema圧縮 |
+| **目的2: ツールフィルタリング** | allowedToolsによるツール制限 |
+| **目的3: 名前空間管理** | プレフィックス付与、ルーティング |
+| **目的4: 複数MCP対応** | stdio型MCPサーバーの接続・実行 |
+| **E2E: プロキシ基本動作** | tools/list、tools/call、エラーハンドリング |
+| **設定: 環境変数展開** | `${VAR}` 形式の環境変数展開 |
+
+#### ヘルパー
+
+テストヘルパーは `src/test-helpers/proxy-test-client.ts` に定義：
+
+- `ProxyTestClient`: JSON-RPC over stdioでProxyServerと通信
+- `createTestFixture()`: テスト用の設定ファイル・クライアントを自動セットアップ
 
 ### MCP Inspectorでテスト
 
