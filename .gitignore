@@ -34,3 +34,5 @@ coverage/
 tmp/
 temp/
 .mcp.json
+.serena/
+.serena
