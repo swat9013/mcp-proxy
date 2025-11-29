@@ -6,8 +6,8 @@
 
 - **コンテキスト削減**: ツール定義の圧縮で50-75%のトークン削減
 - **ツールフィルタリング**: 必要なツールのみを公開
-- **名前空間管理**: ツール名衝突を回避するプレフィックス付与
-- **複数MCP対応**: stdio型/HTTP(SSE)型の両方をサポート
+- **名前空間管理**: ツール名衝突を回避するプレフィックス付与（`upstream__toolname`形式）
+- **複数MCP対応**: stdio型/HTTP型の両方をサポート
 
 ## インストール
 
@@ -23,13 +23,6 @@ npm run build
 `mcp-proxy.config.yaml`を作成:
 
 ```yaml
-proxy:
-  name: "mcp-proxy-gateway"
-  version: "1.0.0"
-  namespacing:
-    enabled: true
-    separator: "__"
-
 upstreams:
   serena:
     type: stdio
@@ -42,8 +35,6 @@ upstreams:
     allowedTools:
       - find_symbol
       - get_symbols_overview
-    toolDescriptionOverrides:
-      find_symbol: "シンボル検索"
 
   deepwiki:
     type: http
@@ -84,15 +75,6 @@ npm start -- --config mcp-proxy.config.yaml
 
 ## 設定オプション
 
-### proxy
-
-| オプション | 説明 | デフォルト |
-|-----------|------|-----------|
-| `name` | プロキシ名 | `mcp-proxy-gateway` |
-| `version` | バージョン | `1.0.0` |
-| `namespacing.enabled` | 名前空間を有効化 | `true` |
-| `namespacing.separator` | 区切り文字 | `__` |
-
 ### upstreams
 
 #### stdio型
@@ -108,11 +90,17 @@ upstreams:
     allowedTools:
       - tool1
       - tool2
-    toolDescriptionOverrides:
-      tool1: "カスタム説明"
 ```
 
-#### HTTP(SSE)型
+| オプション | 説明 | 必須 |
+|-----------|------|------|
+| `type` | `stdio`を指定 | ◯ |
+| `command` | 実行コマンド | ◯ |
+| `args` | コマンド引数 | - |
+| `env` | 環境変数 | - |
+| `allowedTools` | 公開するツール（未指定時は全て） | - |
+
+#### HTTP型
 
 ```yaml
 upstreams:
@@ -121,23 +109,26 @@ upstreams:
     url: "https://example.com/mcp"
     allowedTools:
       - tool1
-    toolDescriptionOverrides:
-      tool1: "カスタム説明"
 ```
+
+| オプション | 説明 | 必須 |
+|-----------|------|------|
+| `type` | `http`を指定 | ◯ |
+| `url` | MCPエンドポイントURL | ◯ |
+| `allowedTools` | 公開するツール（未指定時は全て） | - |
 
 ## 環境変数
 
 設定ファイル内で`${VAR}`または`${VAR:-default}`形式で環境変数を参照可能:
 
 ```yaml
-env:
-  PROJECT_PATH: "${PWD}"
-
 upstreams:
   example:
     type: stdio
     command: "uvx"
-    args: ["--project", "${PROJECT_PATH}"]
+    args: ["--project", "${PWD}"]
+    env:
+      API_KEY: "${API_KEY:-default_key}"
 ```
 
 ## アーキテクチャ

@@ -71,12 +71,12 @@ const client = new Client({ name: "proxy", version: "1.0.0" }, {});
 await client.connect(transport);
 ```
 
-### 4. HTTP(SSE)型MCP接続
+### 4. HTTP型MCP接続
 
 ```typescript
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
-const transport = new SSEClientTransport(new URL("https://example.com/mcp"));
+const transport = new StreamableHTTPClientTransport(new URL("https://example.com/mcp"));
 await client.connect(transport);
 ```
 

@@ -44,7 +44,7 @@ upstreams:
 
 ### http型
 
-HTTP(SSE)でMCPサーバーに接続。
+HTTPでMCPサーバーに接続（Streamable HTTPトランスポート使用）。
 
 ```yaml
 upstreams:
@@ -126,7 +126,7 @@ upstreams:
       - "--context"
       - "ide-assistant"
       - "--project"
-      - "${PROJECT_PATH:-${PWD}}"
+      - "${PWD}"
     allowedTools:
       - get_symbols_overview
       - find_symbol
