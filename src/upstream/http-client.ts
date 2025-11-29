@@ -1,5 +1,5 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import type { Tool, CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import type { HttpUpstreamConfig } from "../config/schema.js";
 import type { UpstreamClient } from "./types.js";
@@ -23,7 +23,7 @@ export class HttpUpstreamClient implements UpstreamClient {
 
     logger.info(`Connecting to HTTP upstream: ${this.name} at ${this.config.url}`);
 
-    const transport = new SSEClientTransport(new URL(this.config.url));
+    const transport = new StreamableHTTPClientTransport(new URL(this.config.url));
 
     this.client = new Client(
       { name: `mcp-proxy-${this.name}`, version: "1.0.0" },

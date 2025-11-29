@@ -123,5 +123,46 @@ npx @modelcontextprotocol/inspector --cli --method tools/list \
 
 ## 設定ファイル
 
-- `mcp-proxy.config.yaml`: 本番用設定（serena/deepwiki/atlassian）
+- `mcp-proxy.config.yaml`: 本番用設定（serena/deepwiki/atlassian/vibe_kanban）
 - `mcp-proxy.test.yaml`: テスト用設定（filesystem）
+
+## 実装上の注意点
+
+### MCPトランスポートの種類
+
+HTTP型MCPには2種類のトランスポートがある：
+- **SSE (Server-Sent Events)**: 古い方式、現在は非推奨
+- **Streamable HTTP**: 新しい標準方式（`StreamableHTTPClientTransport`を使用）
+
+deepwikiなどの新しいMCPサーバーはStreamable HTTPを使用するため、`http-client.ts`では`StreamableHTTPClientTransport`を使用する。
+
+### 耐障害性設計
+
+- **部分的障害の許容**: 1つのupstreamが接続失敗しても、他のupstreamは正常に動作させる
+- `manager.ts`の`connectAll()`では、失敗したupstreamをログに記録して継続する
+- ツール呼び出し時に未接続のupstreamはスキップしてエラーメッセージを返す
+
+### タイムアウト設計
+
+- Claude CodeのMCP接続タイムアウトは約60秒
+- **upstream接続タイムアウトは10秒以内**に設定（Claude Code側より短く）
+- OAuth認証が必要なMCP（atlassianなど）はタイムアウトする可能性がある
+
+### 環境変数展開の制約
+
+`loader.ts`の環境変数展開：
+- `${VAR}`: サポート
+- `${VAR:-default}`: サポート（defaultは文字列リテラル）
+- `${VAR:-${OTHER}}`: **未サポート**（ネストした変数展開は不可）
+
+### 変更後の動作確認
+
+コード変更後は必ず以下を実行：
+```bash
+npm run build
+timeout 20 node dist/index.js --config mcp-proxy.config.yaml 2>&1 | grep -E "(Connected|Failed|upstreams|Gateway started)"
+```
+
+期待する出力：
+- `Connected to X/Y upstreams`
+- `MCP Proxy Gateway started`

@@ -36,7 +36,14 @@ export class StdioUpstreamClient implements UpstreamClient {
       { capabilities: {} }
     );
 
-    await this.client.connect(this.transport);
+    // 接続タイムアウト（10秒）- Claude Code側のタイムアウト前に完了する必要がある
+    const timeoutMs = 10000;
+    const connectPromise = this.client.connect(this.transport);
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error(`Connection timeout after ${timeoutMs}ms`)), timeoutMs);
+    });
+
+    await Promise.race([connectPromise, timeoutPromise]);
     this.connected = true;
 
     logger.info(`Connected to upstream: ${this.name}`);

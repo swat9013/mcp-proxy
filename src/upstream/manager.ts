@@ -24,21 +24,30 @@ export class UpstreamManager {
   }
 
   async connectAll(): Promise<void> {
-    const connectPromises: Promise<void>[] = [];
+    const connectPromises: Promise<{ name: string; success: boolean }>[] = [];
 
     for (const [name, upstreamConfig] of Object.entries(this.config.upstreams)) {
       const client = this.createClient(name, upstreamConfig);
       this.clients.set(name, client);
       connectPromises.push(
-        client.connect().catch((err) => {
-          logger.error(`Failed to connect to upstream ${name}:`, err);
-          throw err;
-        })
+        client.connect()
+          .then(() => ({ name, success: true }))
+          .catch((err) => {
+            logger.error(`Failed to connect to upstream ${name}:`, err);
+            return { name, success: false };
+          })
       );
     }
 
-    await Promise.all(connectPromises);
-    logger.info(`Connected to ${this.clients.size} upstreams`);
+    const results = await Promise.all(connectPromises);
+    const successful = results.filter(r => r.success).length;
+    const failed = results.filter(r => !r.success).map(r => r.name);
+
+    if (failed.length > 0) {
+      logger.warn(`Failed to connect to upstreams: ${failed.join(", ")}`);
+    }
+
+    logger.info(`Connected to ${successful}/${this.clients.size} upstreams`);
   }
 
   async disconnectAll(): Promise<void> {
